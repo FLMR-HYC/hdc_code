@@ -30,16 +30,12 @@
 						class="modern-menu"
 						active-text-color="var(--text-white)" 
 						text-color="var(--text-secondary)"
-						default-active="/home/PLCControl" 
+						default-active="/home/PLCControlCabinet" 
 						@open="handleOpen"
 						@close="handleClose" 
 						:collapse="isCollapse" 
 						@select="handleSelect"
 					>
-						<el-menu-item index="/home/PLCControl" class="menu-item">
-							<i class="el-icon-cpu menu-icon"></i>
-							<span slot="title">PLC实验台控制</span>
-						</el-menu-item>
 						<el-menu-item index="/home/PLCControlCabinet" class="menu-item">
 							<i class="el-icon-postcard menu-icon"></i>
 							<span slot="title">PLC控制柜控制</span>
