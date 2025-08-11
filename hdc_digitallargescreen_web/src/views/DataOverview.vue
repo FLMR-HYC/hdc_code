@@ -370,9 +370,9 @@
                             </div>
                             
                             <div class="storage-content">
-                                <div id="deviceChart2" style="position:absolute; margin-left:40px; margin-top: 80px; width:213px; height:213px;"></div>
+                                <div id="deviceChart2" style="position:absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); width:240px; height:240px;"></div>
                                 
-                                <div class="storage-total" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
+                                <div class="storage-total" style="position: absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
                                     <span class="total-value">{{dataProduct.data.store4Today.in.total}}</span>
                                     <span class="total-label">总入库量</span>
                                 </div>
@@ -428,7 +428,7 @@
                             </div>
                             
                             <div class="production-content">
-                                <div id="deviceChart4" style="position:absolute; margin-left:45px; margin-top: 75px; width:550px; height:330px;"></div>
+                                <div id="deviceChart4" style="position:absolute; margin-left:45px; margin-top: -40px; width:550px; height:330px;"></div>
                                 
                                 <div class="production-table">
                                     <div class="table-header">
@@ -477,7 +477,7 @@
                             </div>
                             
                             <div class="yearly-content">
-                                <div id="deviceChart3" style="position:absolute; margin-left:45px; margin-top: 110px; width:920px; height:300px;"></div>
+                                <div id="deviceChart3" style="position:absolute; margin-left:45px; margin-top: 0px; width:920px; height:300px;"></div>
                                 
                                 <div class="yearly-legend">
                                     <div class="legend-item">
@@ -1071,6 +1071,21 @@
 				devicePixelRatio: 1
 			}).setOption(deviceOption);
 
+			// // 添加测试调用 - 延迟1秒确保DOM已渲染
+			// setTimeout(() => {
+			// 	console.log("开始初始化所有图表");
+				
+			// 	// 初始化今日出入库圆饼图
+			// 	this.initStore4Today();
+				
+			// 	// 初始化年度产量总览图表
+			// 	this.initProductionByMonth();
+				
+			// 	// 初始化产品产量统计图表
+			// 	this.initProductionByTypeAndModel();
+				
+			// 	console.log("所有图表初始化完成");
+			// }, 1000);
 
 		},
 
@@ -1114,11 +1129,11 @@
 						},
 						"switches": [0, 0, 0, 0],
 						"machineInfo": {
-							"efficiency": "0%",
+							"efficiency": "0.00%",
 							"runTime": "00:00:00",
 							"waitTime": "00:00:00",
-							"operator": "",
-							"qualityRate": "0%"
+							"operator": "无",
+							"qualityRate": "0.00%"
 						}
 					},
 					"groupId": 1,
@@ -1132,10 +1147,10 @@
 							"in": { //入库
 								"total": 0, //总数
 								"rate": {
-									// "X60-PRO": "0.00", //各型号占比
-									// "X50-PRO": "0.00", //各型号占比
-									// "X50": "0.00", //各型号占比
-									// "X60": "0.00" //各型号占比
+									"X60-PRO": "35.50", //各型号占比
+									"X50-PRO": "28.20", //各型号占比
+									"X50": "22.10", //各型号占比
+									"X60": "14.20" //各型号占比
 								}
 							},
 							"out": {
@@ -1148,71 +1163,86 @@
 						},
 						"productionByTypeAndModel": { // 产品产量统计
 							"T9527": { //产品类型
-								// "X50": { //产品型号
-								// 	"actual": 557, //实际产量
-								// 	"rate": 19, //完成率
-								// 	"planned": 2821 //计划产量
-								// }
+								"X50": { //产品型号
+									"actual": 557, //实际产量
+									"rate": 89, //完成率
+									"planned": 625 //计划产量
+								},
+								"X60": {
+									"actual": 623,
+									"rate": 95,
+									"planned": 656
+								},
+								"X50-PRO": {
+									"actual": 445,
+									"rate": 85,
+									"planned": 523
+								},
+								"X60-PRO": {
+									"actual": 789,
+									"rate": 92,
+									"planned": 858
+								}
 							}
 						},
 						"productionByMonth": { // 年度产量总览
-							// "08": { // 8月
-							// 	"actual": 0, //实际产量
-							// 	"planned": 500 //计划产量
-							// },
-							// "07": {
-							// 	"actual": 0,
-							// 	"planned": 250
-							// },
-							// "06": {
-							// 	"actual": 0,
-							// 	"planned": 200
-							// },
-							// "05": {
-							// 	"actual": 0,
-							// 	"planned": 150
-							// },
-							// "04": {
-							// 	"actual": 0,
-							// 	"planned": 321
-							// },
-							// "03": {
-							// 	"actual": 169,
-							// 	"planned": 190
-							// },
-							// "12": {
-							// 	"actual": 0,
-							// 	"planned": 200
-							// },
-							// "02": {
-							// 	"actual": 199,
-							// 	"planned": 210
-							// },
-							// "01": {
-							// 	"actual": 189,
-							// 	"planned": 200
-							// },
-							// "10": {
-							// 	"actual": 0,
-							// 	"planned": 200
-							// },
-							// "11": {
-							// 	"actual": 0,
-							// 	"planned": 200
-							// },
-							// "09": {
-							// 	"actual": 0,
-							// 	"planned": 200
-							// }
+							"01": {
+								"actual": 189,
+								"planned": 200
+							},
+							"02": {
+								"actual": 199,
+								"planned": 210
+							},
+							"03": {
+								"actual": 169,
+								"planned": 190
+							},
+							"04": {
+								"actual": 298,
+								"planned": 321
+							},
+							"05": {
+								"actual": 142,
+								"planned": 150
+							},
+							"06": {
+								"actual": 195,
+								"planned": 200
+							},
+							"07": {
+								"actual": 235,
+								"planned": 250
+							},
+							"08": {
+								"actual": 465,
+								"planned": 500
+							},
+							"09": {
+								"actual": 178,
+								"planned": 200
+							},
+							"10": {
+								"actual": 189,
+								"planned": 200
+							},
+							"11": {
+								"actual": 186,
+								"planned": 200
+							},
+							"12": {
+								"actual": 176,
+								"planned": 200
+							}
 						},
 						"materialCompletionRate": { // 材料齐套率
 							"m1": "0", //配件1 数量
 							"m2": "0", //配件2 数量
-							"rate": "0.0", // 齐套率
+							"rate": "0", // 齐套率
 							"m3": "0",
 							"m4": "0"
 						},
-						"qualityPassRate": { //之间通过率
+						"qualityPassRate": { //质量通过率
 							"countPass": 0, // 通过数量
 							"rate": 0, //通过率
 							"countTotal": 0 //受检量
@@ -1567,6 +1597,9 @@
 		position: relative;
 		flex: 1;
 		display: flex;
+		height: 280px; // 确保有足够高度
+		align-items: center;
+		justify-content: center;
 		
 		.storage-total {
 			text-align: center;
@@ -1589,8 +1622,8 @@
 		
 		.storage-legend {
 			position: absolute;
-			right: 40px;
-			bottom: 40px;
+			left: 40px;
+			top: 100px;
 			
 			.legend-item {
 				display: flex;
@@ -1632,7 +1665,7 @@
 		.production-table {
 			position: absolute;
 			right: 40px;
-			top: 80px;
+			top: 40px;
 			width: 280px;
 			
 			.table-header {
