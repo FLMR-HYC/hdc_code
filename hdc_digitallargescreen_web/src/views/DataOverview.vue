@@ -1,610 +1,462 @@
 <template>
     <div class="divroot">
+        <!-- 背景视频 -->
+        <video autoplay muted loop class="background-video">
+            <source src="../assets/dataOverview/background.mp4" type="video/mp4">
+            <!-- 您需要替换为实际的视频路径 -->
+        </video>
+		<!-- 渐变蒙版遮罩 -->
+        <div class="gradient-overlay"></div>
+        
         <ScaleScreen :width="1920" :height="1137" :selfAdaption="true" :alignTop="false">
             <div class="root">
-                <!-- 标题栏 -->
-                <div style="display: flex; flex-direction: column; height:48px;">
-                    <div style='position: relative;'>
-                        <div style="position:absolute; margin-top: 24px; height:48px;">
+                <!-- 自定义标题栏 -->
+                <div class="custom-header">
+                    <!-- 背景图片 -->
+                    <div class="header-background">
+                        <img src="../assets/myfonts/头部.png" alt="Header Background" class="header-image" />
+                    </div>
+                    
+                    <!-- 展区设置部分 -->
+                    <div class="location-section">
+                        <div class="location-display">
                             <UIComponents 
-                                type="title" 
+                                type="icon" 
+                                icon-name="address" 
+                                :icon-size="20"
                                 :custom-style="{ 
-                                    position: 'absolute', 
-                                    width: '1920px', 
-                                    height: '74px' 
+                                    marginRight: '8px',
+                                    filter: 'drop-shadow(0 0 8px rgba(255, 67, 67, 0.6))'
                                 }"
-                            >
-                                <div class="title-content">
-                                    <div class="location-display">
+                            />
+                            <div class="location-text">
+                                <span class="location-label">展区位置</span>
+                                <span class="location-value">{{cityValue}}</span>
+                            </div>
+                            <button class="setting-btn" @click="SetClick">展区设置</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 时钟部分 -->
+
+                    <CrayonClock />
+
+                </div>
+
+                <!-- 主布局容器 -->
+                <div class="main-layout">
+                    <!-- 左侧组合卡片 - 30% -->
+                    <div class="left-panel">
+                        <UIComponents 
+                            type="plate" 
+                            variant="stats"
+                            :custom-style="getComponentBorderStyle('card')"
+                        >
+                            <div class="combined-card-content">
+                                <!-- 入场统计部分 -->
+                                <div class="section visitor-section">
+                                    <div class="section-header">
+                                        <div class="section-title">入场统计</div>
                                         <UIComponents 
-                                            type="icon" 
-                                            icon-name="address" 
-                                            :icon-size="20"
+                                            type="animation" 
+                                            :particle-count="6"
                                             :custom-style="{ 
-                                                marginRight: '8px',
-                                                filter: 'drop-shadow(0 0 8px rgba(255, 67, 67, 0.6))'
+                                                width: '60px', 
+                                                height: '20px',
+                                                marginLeft: '10px'
                                             }"
                                         />
-                                        <div class="location-text">
-                                            <span class="location-label">展区位置</span>
-                                            <span class="location-value">{{cityValue}}</span>
+                                        <div class="tabs">
+                                            <UIComponents type="tab" variant="active">
+                                                <span style="color: white; font-size: 12px;">今日</span>
+                                            </UIComponents>
+                                            <UIComponents type="tab" variant="default">
+                                                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">本月</span>
+                                            </UIComponents>
                                         </div>
-										<button class="setting-btn" @click="SetClick" style="margin-left:16px; padding:4px 12px; border-radius:4px; background:#2777BB; color:#fff; border:none; cursor:pointer; font-size:14px;">展区设置</button>
+                                    </div>
+                                    
+                                    <div class="visitor-stats">
+                                        <div class="stat-item">
+                                            <UIComponents type="icon" icon-name="guest" :icon-size="40" />
+                                            <div class="stat-info">
+                                                <div class="stat-label">访客</div>
+                                                <div class="stat-value">
+                                                    {{dataVisitor.data.today.visitor}}
+                                                    <span class="stat-unit">次</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="stat-item">
+                                            <UIComponents type="icon" icon-name="production" :icon-size="40" />
+                                            <div class="stat-info">
+                                                <div class="stat-label">生产员</div>
+                                                <div class="stat-value">
+                                                    {{dataVisitor.data.today.employee}}
+                                                    <span class="stat-unit">次</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="recent-info">
+                                        <UIComponents type="icon" icon-name="guest" :icon-size="14" :custom-style="{ marginRight: '6px' }" />
+                                        <span class="recent-label">最近3小时入场：</span>
+                                        <span class="recent-count">{{dataVisitor.data.last3Hours}}</span>
+                                        <span class="recent-unit">人</span>
+                                    </div>
+                                </div>
+
+                                <!-- 质检通过率部分 -->
+                                <div class="section quality-section">
+                                    <div class="section-header">
+                                        <div class="section-title">质检通过率</div>
+                                        <UIComponents 
+                                            type="animation" 
+                                            :particle-count="6"
+                                            :custom-style="{ 
+                                                width: '60px', 
+                                                height: '20px',
+                                                marginLeft: '10px'
+                                            }"
+                                        />
+                                    </div>
+                                    
+                                    <div class="quality-display">
+                                        <div class="quality-chart">
+                                            <div id="deviceChart" style="width: 120px; height: 120px;"></div>
+                                            <div class="quality-rate">
+                                                <span class="rate-value">{{dataProduct.data.qualityPassRate.rate}}</span>
+                                                <span class="rate-unit">%</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="quality-stats">
+                                            <div class="stat-row">
+                                                <span class="stat-label">受检量：</span>
+                                                <span class="stat-value">{{dataProduct.data.qualityPassRate.countTotal}}</span>
+                                                <span class="stat-unit">件</span>
+                                            </div>
+                                            <div class="stat-row">
+                                                <span class="stat-label">通过量：</span>
+                                                <span class="stat-value quality-pass">{{dataProduct.data.qualityPassRate.countPass}}</span>
+                                                <span class="stat-unit">件</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 物料齐套率部分 -->
+                                <div class="section material-section">
+                                    <div class="section-header">
+                                        <div class="section-title">物料齐套率</div>
+                                        <UIComponents 
+                                            type="animation" 
+                                            :particle-count="6"
+                                            :custom-style="{ 
+                                                width: '60px', 
+                                                height: '20px',
+                                                marginLeft: '10px'
+                                            }"
+                                        />
+                                    </div>
+                                    
+                                    <div class="material-display">
+                                        <div class="material-rate">
+                                            <span class="rate-value">{{dataProduct.data.materialCompletionRate.rate}}</span>
+                                            <span class="rate-unit">%</span>
+                                        </div>
+                                        
+                                        <div class="material-parts">
+                                            <div class="part-item">
+                                                <UIComponents type="icon" icon-name="part1" :icon-size="14" />
+                                                <span class="part-label">配件1</span>
+                                                <span class="part-value">{{dataProduct.data.materialCompletionRate.m1}}</span>
+                                            </div>
+                                            <div class="part-item">
+                                                <UIComponents type="icon" icon-name="part2" :icon-size="14" />
+                                                <span class="part-label">配件2</span>
+                                                <span class="part-value">{{dataProduct.data.materialCompletionRate.m2}}</span>
+                                            </div>
+                                            <!-- <div class="part-item">
+                                                <UIComponents type="icon" icon-name="part1" :icon-size="14" />
+                                                <span class="part-label">配件3</span>
+                                                <span class="part-value">{{dataProduct.data.materialCompletionRate.m3}}</span>
+                                            </div>
+                                            <div class="part-item">
+                                                <UIComponents type="icon" icon-name="part2" :icon-size="14" />
+                                                <span class="part-label">配件4</span>
+                                                <span class="part-value">{{dataProduct.data.materialCompletionRate.m4}}</span>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </UIComponents>
+                    </div>
+
+                    <!-- 中间空白区域 - 40% -->
+                    <div class="center-video-area">
+                        <!-- 这里是视频展示区域，透明背景让视频可见 -->
+                    </div>
+
+                    <!-- 右侧组合卡片 - 30% -->
+                    <div class="right-panel">
+                        <!-- 产线运行状态 -->
+                        <div class="right-top-card">
+                            <UIComponents 
+                                type="plate" 
+                                variant="machine"
+                                :custom-style="getComponentBorderStyle('status')"
+                            >
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <div class="card-title">产线运行状态</div>
+                                        <UIComponents 
+                                            type="animation" 
+                                            :particle-count="6"
+                                            :custom-style="{ 
+                                                width: '60px', 
+                                                height: '20px',
+                                                marginLeft: '10px'
+                                            }"
+                                        />
+                                        <UIComponents 
+                                            type="selector" 
+                                            :custom-style="{ 
+                                                position: 'absolute', 
+                                                right: '20px',
+                                                top: '12px'
+                                            }"
+                                        >
+                                            <span style="color: #73B1F9; font-size: 14px;">产线A</span>
+                                        </UIComponents>
+                                    </div>
+                                    
+                                    <div class="machine-status-compact">
+                                        <!-- 机床状态网格显示 -->
+                                        <div class="machines-grid">
+                                            <div class="machine-item">
+                                                <UIComponents 
+                                                    type="machine-status" 
+                                                    :is-running="dataEquipment.data.switches[0] === 1" 
+                                                    :custom-style="{ marginBottom: '8px' }"
+                                                />
+                                                <div class="machine-label">1号机床</div>
+                                                <div class="machine-status-text" :style="{color: getSwitchesColor(dataEquipment.data.switches[0])}">
+                                                    {{dataEquipment.data.switches[0] == 0 ? '待机' : '运行中'}}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="machine-item">
+                                                <UIComponents 
+                                                    type="machine-status" 
+                                                    :is-running="dataEquipment.data.switches[1] === 1" 
+                                                    :custom-style="{ marginBottom: '8px' }"
+                                                />
+                                                <div class="machine-label">2号机床</div>
+                                                <div class="machine-status-text" :style="{color: getSwitchesColor(dataEquipment.data.switches[1])}">
+                                                    {{dataEquipment.data.switches[1] == 0 ? '待机' : '运行中'}}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="machine-item">
+                                                <UIComponents 
+                                                    type="machine-status" 
+                                                    :is-running="dataEquipment.data.switches[2] === 1" 
+                                                    :custom-style="{ marginBottom: '8px' }"
+                                                />
+                                                <div class="machine-label">3号机床</div>
+                                                <div class="machine-status-text" :style="{color: getSwitchesColor(dataEquipment.data.switches[2])}">
+                                                    {{dataEquipment.data.switches[2] == 0 ? '待机' : '运行中'}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="efficiency-info">
+                                            <div class="info-row">
+                                                <span class="info-label">运行时长：</span>
+                                                <span class="info-value">{{dataEquipment.data.machineInfo.runTime}}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="info-label">设备效率：</span>
+                                                <span class="info-value">{{dataEquipment.data.machineInfo.efficiency}}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="info-label">负责人：</span>
+                                                <span class="info-value">{{dataEquipment.data.machineInfo.operator}}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </UIComponents>
-                            <CrayonClock style="position:absolute; margin-top: 55px; margin-left: 1615px;">
-                            </CrayonClock>
+                        </div>
+
+                        <!-- 设备告警与出入库合并 -->
+                        <div class="right-bottom-card">
+                            <UIComponents 
+                                type="plate" 
+                                variant="combined"
+                                :custom-style="getComponentBorderStyle('card')"
+                            >
+                                <div class="card-content">
+                                    <div class="combined-tabs">
+                                        <div class="tab-headers">
+											<div class="tab-header" :class="{active: activeTab === 'storage'}" @click="switchTab('storage')">今日出入库</div>
+                                            <div class="tab-header" :class="{active: activeTab === 'alert'}" @click="switchTab('alert')">设备告警</div>
+                                            
+                                        </div>
+                                    </div>
+                                    <!-- 今日出入库内容 -->
+                                    <div v-show="activeTab === 'storage'" class="tab-content">
+                                        <div class="storage-content-compact">
+                                            <div class="storage-chart">
+                                                <div id="deviceChart2" style="width: 150px; height: 150px;"></div>
+                                                <div class="storage-total">
+                                                    <span class="total-value">{{dataProduct.data.store4Today.in.total}}</span>
+                                                    <span class="total-label">总入库量</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="storage-legend-compact">
+                                                <div v-for="(key, index) in keys.slice(0, 4)" :key="index" class="legend-item">
+                                                    <div class="legend-color" :style="{backgroundColor: ['#FFA200', '#3AA4D4', '#38EE44', '#8D38EE'][index]}"></div>
+                                                    <span class="legend-label">{{key}}</span>
+                                                    <span class="legend-value">{{dataProduct.data.store4Today.in.rate[key]}}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 设备告警内容 -->
+                                    <div v-show="activeTab === 'alert'" class="tab-content">
+                                        <div class="alert-table-compact">
+                                            <div class="table-header">
+                                                <div class="header-cell">故障原因</div>
+                                                <div class="header-cell">级别</div>
+                                                <div class="header-cell">时间</div>
+                                            </div>
+                                            
+                                            <div class="table-content">
+                                                <div 
+                                                    v-for="(i, index) in dataEquipment.data.failureMap.MG400" 
+                                                    :key="index"
+                                                    v-show="index < 3"
+                                                    class="table-row"
+                                                >
+                                                    <div class="table-cell">{{i.cause}}</div>
+                                                    <div class="table-cell">
+                                                        <UIComponents type="icon" icon-name="alarm" :icon-size="12" />
+                                                        {{i.level}}
+                                                    </div>
+                                                    <div class="table-cell">{{i.faultTime}}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </UIComponents>
                         </div>
                     </div>
                 </div>
 
-                <!-- 入场统计卡片 -->
-                <div style="position:relative; margin-left: 25px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="stats"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '610px', 
-                            minHeight: '360px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">入场统计</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                                <UIComponents 
-                                    type="tab" 
-                                    variant="active"
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '20px',
-                                        top: '15px'
-                                    }"
-                                >
-                                    <span style="color: white; font-size: 14px;">今日</span>
-                                </UIComponents>
-                                <UIComponents 
-                                    type="tab" 
-                                    variant="default"
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '80px',
-                                        top: '15px'
-                                    }"
-                                >
-                                    <span style="color: rgba(255,255,255,0.5); font-size: 14px;">本月</span>
-                                </UIComponents>
-                            </div>
-                            
-                            <div class="stats-content">
-                                <div class="stat-item">
+                <!-- 底部统计区域 -->
+                <div class="bottom-panel">
+                    <!-- 产品产量统计 -->
+                    <div class="bottom-left">
+                        <UIComponents 
+                            type="plate" 
+                            variant="production"
+                            :custom-style="getComponentBorderStyle('chart')"
+                        >
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-title">产品产量统计</div>
                                     <UIComponents 
-                                        type="icon" 
-                                        icon-name="guest" 
-                                        :icon-size="60"
-                                        :custom-style="{ marginBottom: '10px' }"
+                                        type="animation" 
+                                        :particle-count="6"
+                                        :custom-style="{ 
+                                            width: '60px', 
+                                            height: '20px',
+                                            marginLeft: '10px'
+                                        }"
                                     />
-                                    <div class="stat-info">
-                                        <div class="stat-label">访客</div>
-                                        <div class="stat-value">
-                                            {{dataVisitor.data.today.visitor}}
-                                            <span class="stat-unit">次</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="stat-item">
                                     <UIComponents 
-                                        type="icon" 
-                                        icon-name="production" 
-                                        :icon-size="60"
-                                        :custom-style="{ marginBottom: '10px' }"
-                                    />
-                                    <div class="stat-info">
-                                        <div class="stat-label">生产员</div>
-                                        <div class="stat-value">
-                                            {{dataVisitor.data.today.employee}}
-                                            <span class="stat-unit">次</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="recent-info">
-                                <UIComponents 
-                                    type="icon" 
-                                    icon-name="guest" 
-                                    :icon-size="16"
-                                    :custom-style="{ marginRight: '8px', filter: 'drop-shadow(0 0 5px rgba(79, 195, 247, 0.6))' }"
-                                />
-                                <span class="recent-label">最近3小时入场：</span>
-                                <span class="recent-count">{{dataVisitor.data.last3Hours}}</span>
-                                <span class="recent-unit">人</span>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 设备告警清单卡片 -->
-                <div style="position:relative; margin-left: 1285px; margin-top: 0px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="alert"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '610px', 
-                            minHeight: '360px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">设备告警清单</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                                <UIComponents 
-                                    type="selector" 
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '20px',
-                                        top: '12px'
-                                    }"
-                                >
-                                    <span style="color: #73B1F9; font-size: 16px;">机械臂</span>
-                                </UIComponents>
-                            </div>
-                            
-                            <div class="alert-table">
-                                <div class="table-header">
-                                    <div class="header-cell">故障原因</div>
-                                    <div class="header-cell">告警级别</div>
-                                    <div class="header-cell">故障时间</div>
-                                    <div class="header-cell">恢复时间</div>
-                                </div>
-                                
-                                <div class="table-content">
-                                    <div 
-                                        v-for="(i, index) in dataEquipment.data.failureMap.MG400" 
-                                        :key="index"
-                                        v-show="index < 5"
-                                        class="table-row"
+                                        type="selector" 
+                                        :custom-style="{ 
+                                            position: 'absolute', 
+                                            right: '20px',
+                                            top: '12px'
+                                        }"
                                     >
-                                        <div class="table-cell">{{i.cause}}</div>
-                                        <div class="table-cell">
-                                            <UIComponents 
-                                                type="icon" 
-                                                icon-name="alarm" 
-                                                :icon-size="16"
-                                                :custom-style="{ marginRight: '5px' }"
-                                            />
-                                            {{i.level}}
-                                        </div>
-                                        <div class="table-cell">{{i.faultTime}}</div>
-                                        <div class="table-cell">{{i.recoverTime}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 质检通过率卡片 -->
-                <div style="position:relative; margin-top: 310px; margin-left: 25px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="quality"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '290px', 
-                            minHeight: '280px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">质检通过率</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                            </div>
-                            
-                            <div class="quality-chart">
-                                <div class="chart-container" style="position: relative; width: 150px; height: 150px; margin: 50px auto 0;">
-                                    <div id="deviceChart" style="width: 100%; height: 100%;"></div>
-                                    <div class="quality-rate">
-                                        <span class="rate-value">{{dataProduct.data.qualityPassRate.rate}}</span>
-                                        <span class="rate-unit">%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="quality-stats" style="margin-top: 10px;">
-                                <div class="stat-row">
-                                    <span class="stat-label">受检量：</span>
-                                    <span class="stat-value">{{dataProduct.data.qualityPassRate.countTotal}}</span>
-                                    <span class="stat-unit">件</span>
-                                </div>
-                                <div class="stat-row">
-                                    <span class="stat-label">通过量：</span>
-                                    <span class="stat-value quality-pass">{{dataProduct.data.qualityPassRate.countPass}}</span>
-                                    <span class="stat-unit">件</span>
-                                </div>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 物料齐套率卡片 -->
-                <div style="position:relative; margin-left: 340px; margin-top: 310px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="material"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '290px', 
-                            minHeight: '350px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">物料齐套率</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                            </div>
-                            
-                            <div class="material-display">
-                                <div class="material-rate">
-                                    <span class="rate-value">{{dataProduct.data.materialCompletionRate.rate}}</span>
-                                    <span class="rate-unit">%</span>
+                                        <span style="color: #73B1F9; font-size: 16px;">电视</span>
+                                    </UIComponents>
                                 </div>
                                 
-                                <div class="material-parts">
-                                    <div class="part-row">
-                                        <div class="part-item">
-                                            <UIComponents type="icon" icon-name="part1" :icon-size="17" />
-                                            <span class="part-label">配件1</span>
-                                            <span class="part-value">{{dataProduct.data.materialCompletionRate.m1}}</span>
-                                        </div>
-                                        <div class="part-item">
-                                            <UIComponents type="icon" icon-name="part1" :icon-size="17" />
-                                            <span class="part-label">配件3</span>
-                                            <span class="part-value">{{dataProduct.data.materialCompletionRate.m3}}</span>
-                                        </div>
-                                    </div>
-                                    <div class="part-row">
-                                        <div class="part-item">
-                                            <UIComponents type="icon" icon-name="part2" :icon-size="17" />
-                                            <span class="part-label">配件2</span>
-                                            <span class="part-value">{{dataProduct.data.materialCompletionRate.m2}}</span>
-                                        </div>
-                                        <div class="part-item">
-                                            <UIComponents type="icon" icon-name="part2" :icon-size="17" />
-                                            <span class="part-label">配件4</span>
-                                            <span class="part-value">{{dataProduct.data.materialCompletionRate.m4}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 今日出入库卡片 -->
-                <div style="position:relative; margin-left: 1285px; margin-top: 400px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="storage"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '610px', 
-                            minHeight: '300px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">今日出入库</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                                <UIComponents 
-                                    type="tab" 
-                                    variant="active"
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '20px',
-                                        top: '12px'
-                                    }"
-                                >
-                                    <span style="color: white; font-size: 14px;">入库</span>
-                                </UIComponents>
-                                <UIComponents 
-                                    type="tab" 
-                                    variant="default"
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '80px',
-                                        top: '12px'
-                                    }"
-                                >
-                                    <span style="color: rgba(255,255,255,0.5); font-size: 14px;">出库</span>
-                                </UIComponents>
-                            </div>
-                            
-                            <div class="storage-content">
-                                <div id="deviceChart2" style="position:absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); width:240px; height:240px;"></div>
-                                
-                                <div class="storage-total" style="position: absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
-                                    <span class="total-value">{{dataProduct.data.store4Today.in.total}}</span>
-                                    <span class="total-label">总入库量</span>
-                                </div>
-                                
-                                <div class="storage-legend">
-                                    <div v-for="(key, index) in keys.slice(0, 4)" :key="index" class="legend-item">
-                                        <div class="legend-color" :style="{backgroundColor: ['#FFA200', '#3AA4D4', '#38EE44', '#8D38EE'][index]}"></div>
-                                        <div class="legend-info">
-                                            <span class="legend-label">{{key}}</span>
-                                            <span class="legend-value">{{dataProduct.data.store4Today.in.rate[key]}}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 产品产量统计卡片 -->
-                <div style="position:relative; margin-top: 710px; margin-left: 25px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="production"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '927px', 
-                            minHeight: '400px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">产品产量统计</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                                <UIComponents 
-                                    type="selector" 
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '20px',
-                                        top: '12px'
-                                    }"
-                                >
-                                    <span style="color: #73B1F9; font-size: 16px;">电视</span>
-                                </UIComponents>
-                            </div>
-                            
-                            <div class="production-content">
-                                <div id="deviceChart4" style="position:absolute; margin-left:45px; margin-top: -40px; width:550px; height:330px;"></div>
-                                
-                                <div class="production-table">
-                                    <div class="table-header">
-                                        <div class="header-cell">计划产量</div>
-                                        <div class="header-cell">完成产量</div>
-                                        <div class="header-cell">完成率</div>
-                                    </div>
+                                <div class="production-content">
+                                    <div id="deviceChart4" style="position:absolute; left: 30px; top: 60px; width:450px; height:260px;"></div>
                                     
-                                    <div class="table-rows">
-                                        <div v-for="(key, index) in keysForTypeModel.slice(0, 4)" :key="index" class="table-row">
-                                            <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].planned : 0}}</div>
-                                            <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].actual : 0}}</div>
-                                            <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].rate : 0}}%</div>
+                                    <div class="production-table">
+                                        <div class="table-header">
+                                            <div class="header-cell">计划产量</div>
+                                            <div class="header-cell">完成产量</div>
+                                            <div class="header-cell">完成率</div>
+                                        </div>
+                                        
+                                        <div class="table-rows">
+                                            <div v-for="(key, index) in keysForTypeModel.slice(0, 4)" :key="index" class="table-row">
+                                                <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].planned : 0}}</div>
+                                                <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].actual : 0}}</div>
+                                                <div class="table-cell">{{dataProduct.data.productionByTypeAndModel.T9527[key] ? dataProduct.data.productionByTypeAndModel.T9527[key].rate : 0}}%</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </UIComponents>
-                </div>
+                        </UIComponents>
+                    </div>
 
-                <!-- 年度产量总览卡片 -->
-                <div style="position:relative; margin-left: 972px; margin-top: 710px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="yearly"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '927px', 
-                            minHeight: '400px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">年度产量总览</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                            </div>
-                            
-                            <div class="yearly-content">
-                                <div id="deviceChart3" style="position:absolute; margin-left:45px; margin-top: 0px; width:920px; height:300px;"></div>
-                                
-                                <div class="yearly-legend">
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background: #6CE0F8;"></div>
-                                        <span class="legend-label">计划产量</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background: #2DDEB0;"></div>
-                                        <span class="legend-label">实际产量</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </UIComponents>
-                </div>
-
-                <!-- 产线运行状态卡片 -->
-                <div style="position:relative; margin-left: 655px; margin-top: -700px;">
-                    <UIComponents 
-                        type="plate" 
-                        variant="machine"
-                        :custom-style="{ 
-                            position: 'absolute', 
-                            width: '610px', 
-                            minHeight: '700px',
-                            marginTop: '60px' 
-                        }"
-                    >
-                        <div class="card-content">
-                            <div class="card-header">
-                                <div class="card-title">产线运行状态</div>
-                                <UIComponents 
-                                    type="animation" 
-                                    :particle-count="6"
-                                    :custom-style="{ 
-                                        width: '60px', 
-                                        height: '20px',
-                                        marginLeft: '10px'
-                                    }"
-                                />
-                                <UIComponents 
-                                    type="selector" 
-                                    :custom-style="{ 
-                                        position: 'absolute', 
-                                        right: '20px',
-                                        top: '12px'
-                                    }"
-                                >
-                                    <span style="color: #73B1F9; font-size: 16px;">产线A</span>
-                                </UIComponents>
-                            </div>
-                            
-                            <div class="machine-status">
-                                <!-- 机床状态显示 - 只显示第一台机床 -->
-                                <div class="machines-grid single-machine">
-                                    <div class="machine-item">
-                                        <UIComponents 
-                                            type="machine-status" 
-                                            :is-running="dataEquipment.data.switches[0] === 1" 
-                                            :custom-style="{ marginBottom: '10px' }"
-                                        />
-                                        <div class="machine-label">1号机床</div>
-                                        <div class="machine-status-text" :style="{color: getSwitchesColor(dataEquipment.data.switches[0])}">
-                                            {{dataEquipment.data.switches[0] == 0 ? '待机' : '运行中'}}
-                                        </div>
-                                    </div>
+                    <!-- 年度产量总览 -->
+                    <div class="bottom-right">
+                        <UIComponents 
+                            type="plate" 
+                            variant="yearly"
+                            :custom-style="getComponentBorderStyle('chart')"
+                        >
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-title">年度产量总览</div>
+                                    <UIComponents 
+                                        type="animation" 
+                                        :particle-count="6"
+                                        :custom-style="{ 
+                                            width: '60px', 
+                                            height: '20px',
+                                            marginLeft: '10px'
+                                        }"
+                                    />
                                 </div>
                                 
-                                <!-- 机床详细信息 -->
-                                <div class="machine-details">
-                                    <div class="detail-item">
-                                        <UIComponents type="icon" icon-name="runtime" :icon-size="24" />
-                                        <div class="detail-info">
-                                            <span class="detail-label">运行总时长</span>
-                                            <span class="detail-value">{{dataEquipment.data.machineInfo.runTime}}</span>
-                                        </div>
-                                    </div>
+                                <div class="yearly-content">
+                                    <div id="deviceChart3" style="position:absolute; left: 30px; top: 60px; width:800px; height:260px;"></div>
                                     
-                                    <div class="detail-item">
-                                        <UIComponents type="icon" icon-name="standby" :icon-size="24" />
-                                        <div class="detail-info">
-                                            <span class="detail-label">待机时长</span>
-                                            <span class="detail-value">{{dataEquipment.data.machineInfo.waitTime}}</span>
+                                    <div class="yearly-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #6CE0F8;"></div>
+                                            <span class="legend-label">计划产量</span>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="detail-item">
-                                        <UIComponents type="icon" icon-name="operator" :icon-size="24" />
-                                        <div class="detail-info">
-                                            <span class="detail-label">负责人</span>
-                                            <span class="detail-value">{{dataEquipment.data.machineInfo.operator}}</span>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #2DDEB0;"></div>
+                                            <span class="legend-label">实际产量</span>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- 产线效率指标 -->
-                                <div class="efficiency-metrics">
-                                    <div class="metric-item">
-                                        <UIComponents type="icon" icon-name="efficiency" :icon-size="24" />
-                                        <div class="metric-info">
-                                            <span class="metric-label">产线设备效率</span>
-                                            <span class="metric-value">{{dataEquipment.data.machineInfo.efficiency}}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="metric-item">
-                                        <UIComponents type="icon" icon-name="quality" :icon-size="24" />
-                                        <div class="metric-info">
-                                            <span class="metric-label">质量合格率</span>
-                                            <span class="metric-value">{{dataEquipment.data.machineInfo.qualityRate}}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="metric-tabs">
-                                        <UIComponents type="tab" variant="active">
-                                            <span style="color: white; font-size: 14px;">本周</span>
-                                        </UIComponents>
-                                        <UIComponents type="tab" variant="default">
-                                            <span style="color: rgba(255,255,255,0.5); font-size: 14px;">本月</span>
-                                        </UIComponents>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </UIComponents>
+                        </UIComponents>
+                    </div>
                 </div>
-
             </div>
         </ScaleScreen>
     </div>
@@ -636,6 +488,15 @@
 			CrayonClock,
 		},
 		methods: {
+			switchTab(tab) {
+            	this.activeTab = tab;
+				// 切换到存储选项卡时重新渲染图表
+				if (tab === 'storage') {
+					this.$nextTick(() => {
+						this.initStore4Today();
+					});
+				}
+        	},
 			async initWebSocket() {
 				// 获取id 保存成功，初始化websocket
 				console.log('Local.getId() =' + Local.getId())
@@ -800,7 +661,19 @@
 
 			initStore4Today() {
 				console.log("initStore4Today");
+				
+				
 				// this.dataProduct.data.store4Today.in.rate = {"X60-PRO": "100.00", "X60-PRO2": "10.00"}
+				const chartElement = document.getElementById('deviceChart2');
+				if (!chartElement) {
+					console.error('deviceChart2 element not found');
+					// 延迟重试
+					setTimeout(() => {
+						this.initStore4Today();
+					}, 500);
+					return;
+				}
+
 				this.keys = Object.keys(this.dataProduct.data.store4Today.in.rate);
 				let option2 = {
 					color: ['#FFA200', '#3AA4D4', '#38EE44', '#8D38EE'],
@@ -837,9 +710,20 @@
 					})
 				}
 				console.log("option2==", option2)
-				this.$echarts.init(document.getElementById('deviceChart2'), null, {
+				// 销毁可能存在的图表实例
+				const existingChart = this.$echarts.getInstanceByDom(chartElement);
+				if (existingChart) {
+					existingChart.dispose();
+				}
+				// 创建新的图表实例
+				const chart = this.$echarts.init(chartElement, null, {
 					devicePixelRatio: 1
-				}).setOption(option2);
+				});
+				
+				chart.setOption(option2);
+				
+				// 保存图表实例以便后续使用
+				this.storageChart = chart;
 			},
 
 
@@ -1003,6 +887,102 @@
 				return '#2777BB';
 			},
 
+			// 动态边框样式生成方法
+			getDynamicBorderStyle(componentType = 'default', customConfig = {}) {
+				const { borderWidth, sliceWidth, borderImages } = this.borderConfig;
+				const config = { ...this.borderConfig, ...customConfig };
+				
+				// 选择对应类型的边框图片
+				const borderImagePath = borderImages[componentType] || borderImages.default;
+				
+				return {
+					position: 'relative',
+					width: '100%',
+					height: '100%',
+					borderImageSource: `url(${require('@/assets/myfonts/框.png')})`,
+					borderImageSlice: `${config.sliceWidth} fill`,
+					borderImageWidth: `${config.borderWidth}px`,
+					borderImageRepeat: 'stretch',
+					borderStyle: 'solid',
+					borderWidth: `${config.borderWidth}px`,
+					background: 'rgba(0, 20, 40, 0.7)',
+					backdropFilter: 'blur(10px)',
+					padding: `${config.borderWidth}px`,
+					boxSizing: 'border-box',
+					// 添加类名用于CSS样式
+					className: 'dynamic-border'
+				};
+			},
+
+			// 获取不同类型组件的边框样式
+			getComponentBorderStyle(componentType = 'card', customOptions = {}) {
+				const baseStyle = this.getDynamicBorderStyle(componentType, customOptions);
+				
+				switch(componentType) {
+					case 'card':
+						return {
+							...baseStyle,
+							height: '100%',
+							borderRadius: '8px'
+						};
+					case 'chart':
+						return {
+							...baseStyle,
+							height: '350px',
+							borderRadius: '12px'
+						};
+					case 'status':
+						return {
+							...baseStyle,
+							height: '100%',
+							borderRadius: '6px'
+						};
+					default:
+						return baseStyle;
+				}
+			},
+
+			// 响应式边框调整方法
+			adjustBorderForSize(elementRef, componentType = 'card') {
+				if (!elementRef) return;
+				
+				this.$nextTick(() => {
+					const element = this.$refs[elementRef];
+					if (element) {
+						const rect = element.getBoundingClientRect();
+						const scaleFactor = Math.min(rect.width / 300, rect.height / 200);
+						const adjustedBorderWidth = Math.max(10, this.borderConfig.borderWidth * scaleFactor);
+						const adjustedSliceWidth = Math.max(20, this.borderConfig.sliceWidth * scaleFactor);
+						
+						// 动态更新边框样式
+						element.style.borderImageWidth = `${adjustedBorderWidth}px`;
+						element.style.borderImageSlice = `${adjustedSliceWidth} fill`;
+						element.style.padding = `${adjustedBorderWidth}px`;
+					}
+				});
+			},
+
+			// 调整所有组件的边框
+			adjustAllBorders() {
+				this.$nextTick(() => {
+					// 获取所有使用动态边框的元素
+					const borderElements = this.$el.querySelectorAll('.dynamic-border');
+					borderElements.forEach(element => {
+						const rect = element.getBoundingClientRect();
+						if (rect.width > 0 && rect.height > 0) {
+							// 根据元素尺寸调整边框
+							const scaleFactor = Math.min(rect.width / 300, rect.height / 200);
+							const adjustedBorderWidth = Math.max(8, this.borderConfig.borderWidth * scaleFactor);
+							const adjustedSliceWidth = Math.max(15, this.borderConfig.sliceWidth * scaleFactor);
+							
+							element.style.borderImageWidth = `${adjustedBorderWidth}px`;
+							element.style.borderImageSlice = `${adjustedSliceWidth} fill`;
+							element.style.padding = `${adjustedBorderWidth}px`;
+						}
+					});
+				});
+			},
+
 		},
 
 		mounted() {
@@ -1016,6 +996,12 @@
 					that.windowWidth = window.fullWidth; //获取屏幕宽度
 					// that.$refs.grid.$forceUpdate();
 					that.rowHeight = window.fullWidth
+					// 窗口大小改变时重新调整图表
+					if (that.storageChart) {
+						that.storageChart.resize();
+					}
+					// 窗口大小改变时调整边框
+					that.adjustAllBorders();
 				})()
 			};
 			const gaugeData = [{
@@ -1075,8 +1061,10 @@
 			setTimeout(() => {
 				console.log("开始初始化所有图表");
 				
-				// 初始化今日出入库圆饼图
-				this.initStore4Today();
+				// 只有在存储选项卡激活时才初始化出入库图表
+				if (this.activeTab === 'storage') {
+					this.initStore4Today();
+				}
 				
 				// 初始化年度产量总览图表
 				this.initProductionByMonth();
@@ -1085,6 +1073,9 @@
 				this.initProductionByTypeAndModel();
 				
 				console.log("所有图表初始化完成");
+				
+				// 初始化所有边框
+				this.adjustAllBorders();
 			}, 1000);
 
 		},
@@ -1105,6 +1096,22 @@
 		},
 		data() {
 			return {
+				activeTab: 'storage', // 添加选项卡状态
+				storageChart: null, // 保存图表实例
+				// 边框配置
+				borderConfig: {
+					borderImage: '../assets/myfonts/框.png', // 边框图片路径
+					borderWidth: 15, // 边框宽度
+					cornerRadius: 10, // 圆角半径
+					sliceWidth: 30, // 九宫格切片宽度
+					// 不同类型组件可以使用不同的边框图片
+					borderImages: {
+						default: '../assets/myfonts/框.png',
+						card: '../assets/myfonts/框.png',
+						chart: '../assets/myfonts/框.png',
+						status: '../assets/myfonts/框.png'
+					}
+				},
 				tableData: [],
 				cityValue: '',
 				dataVisitor: {
@@ -1272,17 +1279,692 @@
 </script>
 
 <style lang="less" scoped>
+	.custom-header {
+        position: relative;
+        width: 100%;
+        height: 120px; // 减少标题栏高度从120px到80px
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            
+            .header-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover; // 或者使用 contain，根据您的图片需求
+                object-position: center;
+            }
+        }
+        
+        .location-section {
+            flex: 0 0 auto;
+            
+            .location-display {
+                display: flex;
+                align-items: center;
+                background: linear-gradient(135deg, rgba(255, 67, 67, 0.15) 0%, rgba(255, 99, 71, 0.1) 100%);
+                padding: 12px 20px;
+                border-radius: 25px;
+                border: 1px solid rgba(255, 67, 67, 0.3);
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 15px rgba(255, 67, 67, 0.2);
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    background: linear-gradient(135deg, rgba(255, 67, 67, 0.2) 0%, rgba(255, 99, 71, 0.15) 100%);
+                    box-shadow: 0 6px 20px rgba(255, 67, 67, 0.3);
+                    transform: scale(1.02);
+                }
+                
+                .location-text {
+                    display: flex;
+                    flex-direction: column;
+                    margin-left: 8px;
+                    margin-right: 15px;
+                    
+                    .location-label {
+                        font-size: 11px;
+                        color: rgba(255, 255, 255, 0.7);
+                        margin-bottom: 2px;
+                        font-weight: 300;
+                    }
+                    
+                    .location-value {
+                        font-size: 14px;
+                        color: white;
+                        font-weight: 500;
+                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                    }
+                }
+                
+                .setting-btn {
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    background: linear-gradient(135deg, #2777BB 0%, #1e5f9f 100%);
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 8px rgba(39, 119, 187, 0.3);
+                    
+                    &:hover {
+                        background: linear-gradient(135deg, #3188CC 0%, #2570B0 100%);
+                        box-shadow: 0 4px 12px rgba(39, 119, 187, 0.4);
+                        transform: translateY(-1px);
+                    }
+                    
+                    &:active {
+                        transform: translateY(0);
+                    }
+                }
+            }
+        }
+        
+        .clock-section {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+			min-width: 400px;
+			// // 为时钟添加背景，使其更加突出
+            // padding: 10px 20px;
+            // background: rgba(0, 0, 0, 0.3);
+            // border-radius: 15px;
+            // backdrop-filter: blur(10px);
+            // border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    }
+	.right-top-card {
+        height: 55%; // 明确设置高度
+        min-height: 260px; // 设置最小高度
+    }
+    
+    .right-bottom-card {
+        height: 45%; // 明确设置高度
+        min-height: 220px; // 设置最小高度
+    }
 	.root {
 		position: relative;
 		width: 100%;
 		height: 100%;
+		z-index: 10;
 	}
 
 	.divroot {
-		background: linear-gradient(135deg, #05181d 0%, #0a2633 50%, #0f3a4f 100%);
-		background-size: 100% 100%;
+		position: relative;
 		width: 100%;
 		height: 100%;
+		overflow: hidden;
+	}
+	
+	// 动态边框样式
+	.dynamic-border {
+		position: relative;
+		border-image-slice: 30 fill;
+		border-image-repeat: stretch;
+		border-style: solid;
+		
+		// 如果边框图片加载失败的后备方案
+		&:after {
+			content: '';
+			position: absolute;
+			top: -2px;
+			left: -2px;
+			right: -2px;
+			bottom: -2px;
+			border: 2px solid rgba(255, 255, 255, 0.1);
+			border-radius: inherit;
+			z-index: -1;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+		
+		// 当border-image不支持时显示后备边框
+		&:not([style*="border-image-source"]):after {
+			opacity: 1;
+		}
+	}
+	
+	// 边框容器样式
+	.custom-border-container {
+		position: relative;
+		
+		// 为不同类型的组件设置默认尺寸
+		&.card-container {
+			min-height: 200px;
+		}
+		
+		&.chart-container {
+			min-height: 350px;
+		}
+		
+		&.status-container {
+			min-height: 150px;
+		}
+	}
+	
+	// 背景视频样式
+	.background-video {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: 1;
+		opacity: 1.0; // 调整视频透明度
+	}
+	// 渐变蒙版遮罩
+    .gradient-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none; // 确保不会阻挡交互
+        background: 
+            // 左侧渐变 - 从左边缘到30%位置
+            linear-gradient(
+                to right, 
+                rgba(0, 40, 85, 0.9) 0%,
+                rgba(0, 60, 120, 0.7) 15%, 
+                rgba(0, 80, 160, 0.4) 25%,
+                transparent 30%
+            ),
+            // 右侧渐变 - 从70%位置到右边缘
+            linear-gradient(
+                to left, 
+                rgba(0, 40, 85, 0.9) 0%,
+                rgba(0, 60, 120, 0.7) 15%, 
+                rgba(0, 80, 160, 0.4) 25%,
+                transparent 30%
+            ),
+            // 底部渐变 - 从底部向上
+            linear-gradient(
+                to top, 
+                rgba(0, 40, 85, 0.8) 0%,
+                rgba(0, 60, 120, 0.6) 20%, 
+                rgba(0, 80, 160, 0.3) 40%,
+                transparent 60%
+            ),
+            // 顶部轻微渐变 - 为标题栏提供更好的背景
+            linear-gradient(
+                to bottom, 
+                rgba(0, 30, 65, 0.85) 0%, // 加深颜色，提高透明度
+                rgba(0, 45, 95, 0.65) 15%, // 加深颜色，提高透明度
+                rgba(0, 60, 120, 0.4) 25%,
+                transparent 35%
+            );
+    }
+	// 主布局
+	.main-layout {
+		display: flex;
+		width: 100%;
+		height: calc(100vh - 110px); // 减少为标题栏和底部留出的空间
+		margin-top: 10px; // 大幅减少顶部边距
+		margin-bottom: 30px;
+		gap: 0;
+		position: relative;
+		z-index: 10;
+	}
+
+	.left-panel {
+		width: 30%;
+		height: 100%;
+		padding: 0 10px 0 0;
+	}
+
+	.center-video-area {
+		width: 40%;
+		height: 100%;
+		// 完全透明，让背景视频显示
+		padding: 0 10px; // 减少左右内边距
+	}
+
+	.right-panel {
+		width: 30%;
+		height: 100%;
+		padding: 0 0 0 10px; // 减少左右内边距
+		display: flex;
+		flex-direction: column;
+	}
+
+	// 底部面板
+	.bottom-panel {
+		display: flex;
+		height: 370px;
+		margin: 0 0; // 移除左右边距，让组件紧贴边缘
+		gap: 20px;
+		position: relative;
+		z-index: 10;
+	}
+
+	.bottom-left {
+		flex: 1;
+	}
+
+	.bottom-right {
+		flex: 1;
+	}
+
+	// 左侧组合卡片样式
+	.combined-card-content {
+		padding: 20px;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 25px;
+	}
+
+	.section {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		
+		&.visitor-section {
+			flex: 1.2;
+		}
+		
+		&.quality-section, &.material-section {
+			flex: 0.9;
+		}
+	}
+
+	.section-header {
+		display: flex;
+		align-items: center;
+		margin-bottom: 15px;
+		position: relative;
+		
+		.section-title {
+			font-family: 'myfont', sans-serif;
+			color: white;
+			font-size: 16px;
+			font-weight: bold;
+		}
+		
+		.tabs {
+			position: absolute;
+			right: 0;
+			display: flex;
+			gap: 5px;
+		}
+	}
+	// 访客统计样式
+	.visitor-stats {
+		display: flex;
+		gap: 20px;
+		margin-bottom: 15px;
+		
+		.stat-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			flex: 1;
+			
+			.stat-info {
+				.stat-label {
+					font-size: 12px;
+					color: rgba(255, 255, 255, 0.7);
+					margin-bottom: 5px;
+				}
+				
+				.stat-value {
+					font-family: 'myfont', sans-serif;
+					font-size: 24px;
+					color: white;
+					font-weight: bold;
+					
+					.stat-unit {
+						font-size: 12px;
+						color: rgba(255, 255, 255, 0.7);
+						margin-left: 4px;
+					}
+				}
+			}
+		}
+	}
+
+	.recent-info {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 15px;
+		background: rgba(79, 195, 247, 0.1);
+		border-radius: 6px;
+		border: 1px solid rgba(79, 195, 247, 0.2);
+		
+		.recent-label, .recent-unit {
+			font-size: 12px;
+			color: rgba(255, 255, 255, 0.7);
+		}
+		
+		.recent-count {
+			font-size: 14px;
+			font-weight: bold;
+			color: #4FC3F7;
+			margin: 0 4px;
+		}
+	}
+
+	// 质检显示样式
+	.quality-display {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		
+		.quality-chart {
+			position: relative;
+			
+			.quality-rate {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				
+				.rate-value {
+					font-size: 18px;
+					font-weight: bold;
+					color: #4FC3F7;
+					display: block;
+				}
+				
+				.rate-unit {
+					font-size: 12px;
+					color: rgba(255, 255, 255, 0.8);
+				}
+			}
+		}
+		
+		.quality-stats {
+			flex: 1;
+			
+			.stat-row {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 8px;
+				padding: 4px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+				
+				.stat-label {
+					color: rgba(255, 255, 255, 0.7);
+					font-size: 18px; // 从11px调整到13px
+				}
+				
+				.stat-value {
+					color: #66BB6A;
+					font-weight: bold;
+					font-size: 20px; // 从11px调整到16px
+					
+					&.quality-pass {
+						color: #4FC3F7;
+					}
+				}
+				
+				.stat-unit {
+					color: rgba(255, 255, 255, 0.5);
+					font-size: 17px; // 从10px调整到12px
+					margin-left: 2px;
+				}
+			}
+		}
+	}
+
+	// 物料显示样式
+	.material-display {
+		display: flex;
+		flex-direction: column;
+		
+		.material-rate {
+			text-align: center;
+			margin-bottom: 15px;
+			
+			.rate-value {
+				font-size: 28px;
+				font-weight: bold;
+				color: #FF9800;
+				display: block;
+			}
+			
+			.rate-unit {
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.7);
+			}
+		}
+		
+		.material-parts {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8px;
+			
+			.part-item {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				padding: 6px 8px;
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 4px;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				
+				.part-label {
+					color: rgba(255, 255, 255, 0.8);
+					font-size: 10px;
+					flex: 1;
+				}
+				
+				.part-value {
+					color: #FF9800;
+					font-weight: bold;
+					font-size: 10px;
+				}
+			}
+		}
+	}
+
+	// 右侧机床状态紧凑样式
+	.machine-status-compact {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+		height: 100%;
+		
+		.machines-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr); // 三列网格布局
+			gap: 10px;
+			
+			.machine-item {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 10px;
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 6px;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				transition: all 0.3s ease;
+				
+				&:hover {
+					background: rgba(255, 255, 255, 0.08);
+					transform: translateY(-2px);
+				}
+				
+				.machine-label {
+					color: white;
+					font-size: 11px;
+					margin-bottom: 4px;
+					font-weight: 500;
+				}
+				
+				.machine-status-text {
+					font-size: 10px;
+					font-weight: bold;
+					text-align: center;
+				}
+			}
+		}
+		
+		.efficiency-info {
+			flex: 1;
+			
+			.info-row {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 8px;
+				padding: 6px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+				
+				.info-label {
+					color: rgba(255, 255, 255, 0.7);
+					font-size: 12px;
+				}
+				
+				.info-value {
+					color: white;
+					font-weight: bold;
+					font-size: 12px;
+				}
+			}
+		}
+	}
+
+	// 选项卡样式
+	.combined-tabs {
+		.tab-headers {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 15px;
+			
+			.tab-header {
+				padding: 8px 16px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 20px;
+				color: rgba(255, 255, 255, 0.7);
+				font-size: 12px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				
+				&.active {
+					background: rgba(30, 144, 255, 0.3);
+					color: white;
+				}
+				
+				&:hover {
+					background: rgba(255, 255, 255, 0.15);
+				}
+			}
+		}
+	}
+
+	.tab-content {
+		flex: 1;
+	}
+
+	// 紧凑告警表格
+	.alert-table-compact {
+		.table-header {
+			display: flex;
+			padding: 8px 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+			
+			.header-cell {
+				flex: 1;
+				font-size: 12px;
+				color: white;
+				font-weight: bold;
+				text-align: center;
+			}
+		}
+		
+		.table-content {
+			.table-row {
+				display: flex;
+				padding: 8px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+				
+				.table-cell {
+					flex: 1;
+					font-size: 11px;
+					color: rgba(255, 255, 255, 0.8);
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+			}
+		}
+	}
+
+	// 紧凑出入库样式
+	.storage-content-compact {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		height: 100%;
+		
+		.storage-chart {
+			position: relative;
+			
+			.storage-total {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				
+				.total-value {
+					font-size: 24px; // 从20px调整到24px
+					font-weight: bold;
+					color: #4FC3F7;
+					display: block;
+				}
+				
+				.total-label {
+					font-size: 12px; // 从10px调整到12px
+					color: rgba(255, 255, 255, 0.8);
+				}
+			}
+		}
+		
+		.storage-legend-compact {
+			flex: 1;
+			
+			.legend-item {
+				display: flex;
+				align-items: center;
+				gap: 8px; // 从6px调整到8px，增加元素间距
+				margin-bottom: 8px; // 从6px调整到8px，增加行间距
+				
+				.legend-color {
+					width: 12px; // 从10px调整到12px
+					height: 12px; // 从10px调整到12px
+					border-radius: 2px;
+				}
+				
+				.legend-label {
+					color: rgba(255, 255, 255, 0.8);
+					font-size: 12px; // 从10px调整到12px
+					flex: 1;
+				}
+				
+				.legend-value {
+					color: white;
+					font-weight: bold;
+					font-size: 14px; // 从10px调整到14px
+				}
+			}
+		}
 	}
 
 	// 标题栏样式
@@ -1880,6 +2562,10 @@
 
 	// 响应式设计
 	@media (max-width: 1600px) {
+		.main-layout {
+			height: calc(100vh - 100px); // 在小屏幕上相应调整
+		}
+		
 		.card-content {
 			padding: 15px;
 		}
