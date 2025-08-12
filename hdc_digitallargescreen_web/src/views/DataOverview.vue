@@ -1071,21 +1071,21 @@
 				devicePixelRatio: 1
 			}).setOption(deviceOption);
 
-			// // 添加测试调用 - 延迟1秒确保DOM已渲染
-			// setTimeout(() => {
-			// 	console.log("开始初始化所有图表");
+			// 添加测试调用 - 延迟1秒确保DOM已渲染
+			setTimeout(() => {
+				console.log("开始初始化所有图表");
 				
-			// 	// 初始化今日出入库圆饼图
-			// 	this.initStore4Today();
+				// 初始化今日出入库圆饼图
+				this.initStore4Today();
 				
-			// 	// 初始化年度产量总览图表
-			// 	this.initProductionByMonth();
+				// 初始化年度产量总览图表
+				this.initProductionByMonth();
 				
-			// 	// 初始化产品产量统计图表
-			// 	this.initProductionByTypeAndModel();
+				// 初始化产品产量统计图表
+				this.initProductionByTypeAndModel();
 				
-			// 	console.log("所有图表初始化完成");
-			// }, 1000);
+				console.log("所有图表初始化完成");
+			}, 1000);
 
 		},
 
@@ -1110,8 +1110,8 @@
 				dataVisitor: {
 					data: {
 						today: {
-							visitor: 0,
-							employee: 0
+							visitor: 167,
+							employee: 89
 						},
 						last3Hours: 0,
 						thisYear: {
@@ -1127,13 +1127,18 @@
 						"failureMap": {
 							"MG400": []
 						},
-						"switches": [0, 0, 0, 0],
+						"switches": [1, 1, 1, 1],
 						"machineInfo": {
-							"efficiency": "0.00%",
-							"runTime": "00:00:00",
-							"waitTime": "00:00:00",
-							"operator": "无",
-							"qualityRate": "0.00%"
+							// "efficiency": "0.00%",
+							// "runTime": "00:00:00",
+							// "waitTime": "00:00:00",
+							// "operator": "无",
+							// "qualityRate": "0.00%"
+							"efficiency": "87.5%",
+							"runTime": "07:25:30",
+							"waitTime": "01:15:20",
+							"operator": "张工程师",
+							"qualityRate": "93.4%"
 						}
 					},
 					"groupId": 1,
@@ -1145,7 +1150,7 @@
 					"data": {
 						"store4Today": { //今日出入库
 							"in": { //入库
-								"total": 0, //总数
+								"total": 1250, //总数
 								"rate": {
 									"X60-PRO": "35.50", //各型号占比
 									"X50-PRO": "28.20", //各型号占比
@@ -1236,16 +1241,26 @@
 							}
 						},
 						"materialCompletionRate": { // 材料齐套率
-							"m1": "0", //配件1 数量
-							"m2": "0", //配件2 数量
-							"rate": "0", // 齐套率
-							"m3": "0",
-							"m4": "0"
+							// "m1": "0", //配件1 数量
+							// "m2": "0", //配件2 数量
+							// "rate": "0", // 齐套率
+							// "m3": "0",
+							// "m4": "0",
+							
+							"m1": "1250", //配件1 数量
+							"m2": "1180", //配件2 数量
+							"rate": "85.6", // 齐套率
+							"m3": "1095",
+							"m4": "1156"
 						},
 						"qualityPassRate": { //质量通过率
-							"countPass": 0, // 通过数量
-							"rate": 0, //通过率
-							"countTotal": 0 //受检量
+							// "countPass": 0, // 通过数量
+							// "rate": 0, //通过率
+							// "countTotal": 0 //受检量
+													
+							"countPass": 1168, // 通过数量
+							"rate": 93.4, //通过率
+							"countTotal": 1250 //受检量
 						}
 					},
 					"groupId": 1,
