@@ -68,10 +68,10 @@
                                         />
                                         <div class="tabs">
                                             <UIComponents type="tab" variant="active">
-                                                <span style="color: white; font-size: 12px;">今日</span>
+                                                <span style="color: white; font-size: 12px; font-family: 'myfont', sans-serif;">今日</span>
                                             </UIComponents>
                                             <UIComponents type="tab" variant="default">
-                                                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">本月</span>
+                                                <span style="color: rgba(255,255,255,0.5); font-size: 12px; font-family: 'myfont', sans-serif;">本月</span>
                                             </UIComponents>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@
                                     </div>
                                     
                                     <div class="recent-info">
-                                        <UIComponents type="icon" icon-name="guest" :icon-size="14" :custom-style="{ marginRight: '6px' }" />
+                                        <UIComponents type="icon" icon-name="guest" :icon-size="30" :custom-style="{ marginRight: '6px' }" />
                                         <span class="recent-label">最近3小时入场：</span>
                                         <span class="recent-count">{{dataVisitor.data.last3Hours}}</span>
                                         <span class="recent-unit">人</span>
@@ -230,7 +230,7 @@
                                                 top: '12px'
                                             }"
                                         >
-                                            <span style="color: #73B1F9; font-size: 14px;">产线A</span>
+                                            <span style="color: #73B1F9; font-size: 14px; font-family: 'myfont', sans-serif;">产线A</span>
                                         </UIComponents>
                                     </div>
                                     
@@ -341,13 +341,13 @@
                                                 <div 
                                                     v-for="(i, index) in dataEquipment.data.failureMap.MG400" 
                                                     :key="index"
-                                                    v-show="index < 3"
+                                                    v-show="index < 4"
                                                     class="table-row"
                                                 >
                                                     <div class="table-cell">{{i.cause}}</div>
                                                     <div class="table-cell">
                                                         <UIComponents type="icon" icon-name="alarm" :icon-size="12" />
-                                                        {{i.level}}
+                                                        <span :class="getAlertLevelClass(i.level)">{{i.level}}</span>
                                                     </div>
                                                     <div class="table-cell">{{i.faultTime}}</div>
                                                 </div>
@@ -391,12 +391,12 @@
                                             top: '12px'
                                         }"
                                     >
-                                        <span style="color: #73B1F9; font-size: 16px;">电视</span>
+                                        <span style="color: #73B1F9; font-size: 16px; font-family: 'myfont', sans-serif;">电视</span>
                                     </UIComponents>
                                 </div>
                                 
                                 <div class="production-content">
-                                    <div id="deviceChart4" style="position:absolute; left: 30px; top: 60px; width:450px; height:260px;"></div>
+                                    <div id="deviceChart4" style="position:absolute; left: 30px; top: -10px; width:540px; height:312px;"></div>
                                     
                                     <div class="production-table">
                                         <div class="table-header">
@@ -440,7 +440,7 @@
                                 </div>
                                 
                                 <div class="yearly-content">
-                                    <div id="deviceChart3" style="position:absolute; left: 30px; top: 60px; width:800px; height:260px;"></div>
+                                    <div id="deviceChart3" style="position:absolute; left: 30px; top: 0px; width:800px; height:260px;"></div>
                                     
                                     <div class="yearly-legend">
                                         <div class="legend-item">
@@ -547,8 +547,14 @@
 					fontSize: 16
 				};
 				let option4 = {
+					textStyle: {
+						fontFamily: 'myfont'
+					},
 					title: {
-						text: ''
+						text: '',
+						textStyle: {
+							fontFamily: 'myfont'
+						}
 					},
 
 					tooltip: {
@@ -574,7 +580,8 @@
 						},
 						axisLabel: {
 							margin: 30,
-							fontSize: 14
+							fontSize: 14,
+							fontFamily: 'myfont'
 						},
 						axisPointer: {
 							label: {
@@ -887,6 +894,20 @@
 				return '#2777BB';
 			},
 
+			// 获取告警级别的CSS类
+			getAlertLevelClass(level) {
+				switch(level) {
+					case '紧急':
+						return 'alert-emergency';
+					case '警告':
+						return 'alert-warning';
+					case '一般':
+						return 'alert-normal';
+					default:
+						return 'alert-info';
+				}
+			},
+
 			// 动态边框样式生成方法
 			getDynamicBorderStyle(componentType = 'default', customConfig = {}) {
 				const { borderWidth, sliceWidth, borderImages } = this.borderConfig;
@@ -905,8 +926,10 @@
 					borderImageRepeat: 'stretch',
 					borderStyle: 'solid',
 					borderWidth: `${config.borderWidth}px`,
-					background: 'rgba(0, 20, 40, 0.7)',
-					backdropFilter: 'blur(10px)',
+					background: 'linear-gradient(135deg, rgba(0, 20, 40, 0.4) 0%, rgba(0, 30, 60, 0.5) 50%, rgba(0, 20, 40, 0.4) 100%)', // 增加渐变和透明度
+					backdropFilter: 'blur(15px) saturate(1.2)', // 增强背景模糊和饱和度
+					border: '1px solid rgba(255, 255, 255, 0.08)', // 添加细微边框
+					boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.3)', // 内外阴影增强立体感
 					padding: `${config.borderWidth}px`,
 					boxSizing: 'border-box',
 					// 添加类名用于CSS样式
@@ -923,22 +946,28 @@
 						return {
 							...baseStyle,
 							height: '100%',
-							borderRadius: '8px'
+							borderRadius: '8px',
+							background: 'transparent'
 						};
 					case 'chart':
 						return {
 							...baseStyle,
 							height: '350px',
-							borderRadius: '12px'
+							borderRadius: '12px',
+							background: 'transparent'
 						};
 					case 'status':
 						return {
 							...baseStyle,
 							height: '100%',
-							borderRadius: '6px'
+							borderRadius: '6px',
+							background: 'transparent'
 						};
 					default:
-						return baseStyle;
+						return {
+							...baseStyle,
+							background: 'transparent'
+						};
 				}
 			},
 
@@ -986,6 +1015,15 @@
 		},
 
 		mounted() {
+			// 设置ECharts全局默认字体
+			if (this.$echarts) {
+				this.$echarts.registerTheme('customTheme', {
+					textStyle: {
+						fontFamily: 'myfont'
+					}
+				});
+			}
+			
 			this.initWebSocket();
 			var that = this;
 			window.onresize = () => {
@@ -1132,7 +1170,33 @@
 				dataEquipment: {
 					"data": {
 						"failureMap": {
-							"MG400": []
+							"MG400": [
+								{
+									"cause": "机械臂传感器异常",
+									"level": "紧急",
+									"faultTime": "08:30:15"
+								},
+								{
+									"cause": "温度传感器超限",
+									"level": "警告",
+									"faultTime": "07:45:22"
+								},
+								{
+									"cause": "液压系统压力不足",
+									"level": "紧急",
+									"faultTime": "06:20:08"
+								},
+								{
+									"cause": "电机过载保护",
+									"level": "一般",
+									"faultTime": "05:15:33"
+								},
+								{
+									"cause": "通信连接中断",
+									"level": "警告",
+									"faultTime": "04:50:17"
+								}
+							]
 						},
 						"switches": [1, 1, 1, 1],
 						"machineInfo": {
@@ -1386,19 +1450,20 @@
         }
     }
 	.right-top-card {
-        height: 55%; // 明确设置高度
-        min-height: 260px; // 设置最小高度
+        height: 44%; //
+        min-height: 220px; // 从260px调整为240px
     }
     
     .right-bottom-card {
-        height: 45%; // 明确设置高度
-        min-height: 220px; // 设置最小高度
+        height: 43%; // 从45%调整为43%，为间距让出空间
+        min-height: 200px; // 从220px调整为200px
     }
 	.root {
 		position: relative;
 		width: 100%;
 		height: 100%;
 		z-index: 10;
+		font-family: 'myfont', sans-serif; // 全局字体设置
 	}
 
 	.divroot {
@@ -1406,6 +1471,25 @@
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
+		font-family: 'myfont', sans-serif; // 全局字体设置
+		
+		// 确保所有文本元素都继承字体
+		*, *::before, *::after {
+			font-family: inherit;
+		}
+		
+		// 强制常见文本元素使用统一字体
+		span, div, p, h1, h2, h3, h4, h5, h6, label, input, button, text {
+			font-family: 'myfont', sans-serif !important;
+		}
+		
+		// 确保所有可能的文本类都使用统一字体
+		.card-title, .section-title, .stat-label, .stat-value, .stat-unit,
+		.machine-label, .machine-status-text, .info-label, .info-value,
+		.legend-label, .legend-value, .tab-header, .table-cell, .header-cell,
+		.rate-value, .rate-unit, .total-value, .total-label {
+			font-family: 'myfont', sans-serif !important;
+		}
 	}
 	
 	// 动态边框样式
@@ -1539,14 +1623,15 @@
 		padding: 0 0 0 10px; // 减少左右内边距
 		display: flex;
 		flex-direction: column;
+		gap: 100px; // 添加组件间距
 	}
 
 	// 底部面板
 	.bottom-panel {
 		display: flex;
-		height: 370px;
+		height: 300px;
 		margin: 0 0; // 移除左右边距，让组件紧贴边缘
-		gap: 20px;
+		gap: 0px;
 		position: relative;
 		z-index: 10;
 	}
@@ -1590,9 +1675,10 @@
 		
 		.section-title {
 			font-family: 'myfont', sans-serif;
-			color: white;
+			color: rgba(255, 255, 255, 0.95); // 稍微降低透明度，更融合
 			font-size: 16px;
 			font-weight: bold;
+			text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); // 添加文字阴影
 		}
 		
 		.tabs {
@@ -1624,12 +1710,13 @@
 				.stat-value {
 					font-family: 'myfont', sans-serif;
 					font-size: 24px;
-					color: white;
+					color: rgba(255, 255, 255, 0.95); // 增加透明度
 					font-weight: bold;
+					text-shadow: 0 2px 8px rgba(79, 195, 247, 0.3); // 添加蓝色光晕
 					
 					.stat-unit {
 						font-size: 12px;
-						color: rgba(255, 255, 255, 0.7);
+						color: rgba(255, 255, 255, 0.6); // 降低透明度
 						margin-left: 4px;
 					}
 				}
@@ -1642,19 +1729,22 @@
 		align-items: center;
 		justify-content: center;
 		padding: 10px 15px;
-		background: rgba(79, 195, 247, 0.1);
-		border-radius: 6px;
-		border: 1px solid rgba(79, 195, 247, 0.2);
+		background: linear-gradient(135deg, rgba(79, 195, 247, 0.08) 0%, rgba(79, 195, 247, 0.15) 100%); // 增加渐变透明背景
+		border-radius: 8px; // 稍微增加圆角
+		border: 1px solid rgba(79, 195, 247, 0.25); // 增强边框透明度
+		box-shadow: 0 2px 12px rgba(79, 195, 247, 0.15); // 添加发光效果
+		backdrop-filter: blur(5px); // 添加背景模糊
 		
 		.recent-label, .recent-unit {
-			font-size: 12px;
-			color: rgba(255, 255, 255, 0.7);
+			font-size: 30px;
+			color: rgba(255, 255, 255, 0.8); // 提高可见度
 		}
 		
 		.recent-count {
-			font-size: 14px;
+			font-size: 30px;
 			font-weight: bold;
-			color: #4FC3F7;
+			color: rgba(79, 195, 247, 0.9); // 稍微降低透明度增加融合
+			text-shadow: 0 1px 4px rgba(79, 195, 247, 0.4); // 添加光晕
 			margin: 0 4px;
 		}
 	}
@@ -1676,15 +1766,16 @@
 				text-align: center;
 				
 				.rate-value {
-					font-size: 18px;
+					font-size: 15px;
 					font-weight: bold;
-					color: #4FC3F7;
+					color: rgba(79, 195, 247, 0.9); // 增加透明度和统一色调
+					text-shadow: 0 2px 8px rgba(79, 195, 247, 0.4); // 添加光晕效果
 					display: block;
 				}
 				
 				.rate-unit {
 					font-size: 12px;
-					color: rgba(255, 255, 255, 0.8);
+					color: rgba(255, 255, 255, 0.7); // 稍微降低透明度
 				}
 			}
 		}
@@ -1705,12 +1796,14 @@
 				}
 				
 				.stat-value {
-					color: #66BB6A;
+					color: rgba(102, 187, 106, 0.9); // 降低绿色透明度，增加融合效果
 					font-weight: bold;
-					font-size: 20px; // 从11px调整到16px
+					font-size: 16px; // 从11px调整到16px
+					text-shadow: 0 1px 4px rgba(102, 187, 106, 0.3); // 添加绿色光晕
 					
 					&.quality-pass {
-						color: #4FC3F7;
+						color: rgba(79, 195, 247, 0.9); // 统一蓝色系透明度
+						text-shadow: 0 1px 4px rgba(79, 195, 247, 0.3); // 添加蓝色光晕
 					}
 				}
 				
@@ -1735,7 +1828,8 @@
 			.rate-value {
 				font-size: 28px;
 				font-weight: bold;
-				color: #FF9800;
+				color: rgba(255, 152, 0, 0.9); // 降低橙色透明度
+				text-shadow: 0 2px 8px rgba(255, 152, 0, 0.4); // 添加橙色光晕
 				display: block;
 			}
 			
@@ -1755,20 +1849,22 @@
 				align-items: center;
 				gap: 6px;
 				padding: 6px 8px;
-				background: rgba(255, 255, 255, 0.05);
-				border-radius: 4px;
-				border: 1px solid rgba(255, 255, 255, 0.1);
+				background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.08) 100%); // 增加渐变透明背景
+				border-radius: 6px; // 增加圆角
+				border: 1px solid rgba(255, 255, 255, 0.08); // 降低边框透明度
+				backdrop-filter: blur(3px); // 添加背景模糊
 				
 				.part-label {
-					color: rgba(255, 255, 255, 0.8);
+					color: rgba(255, 255, 255, 0.7); // 稍微降低透明度
 					font-size: 10px;
 					flex: 1;
 				}
 				
 				.part-value {
-					color: #FF9800;
+					color: rgba(255, 152, 0, 0.9); // 与主色调统一透明度
 					font-weight: bold;
 					font-size: 10px;
+					text-shadow: 0 1px 3px rgba(255, 152, 0, 0.3); // 添加光晕
 				}
 			}
 		}
@@ -1791,27 +1887,32 @@
 				flex-direction: column;
 				align-items: center;
 				padding: 10px;
-				background: rgba(255, 255, 255, 0.05);
-				border-radius: 6px;
-				border: 1px solid rgba(255, 255, 255, 0.1);
+				background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.08) 100%); // 增加渐变背景
+				border-radius: 8px; // 增加圆角
+				border: 1px solid rgba(255, 255, 255, 0.08); // 降低边框透明度
+				backdrop-filter: blur(5px); // 添加背景模糊
 				transition: all 0.3s ease;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // 添加阴影
 				
 				&:hover {
-					background: rgba(255, 255, 255, 0.08);
+					background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.12) 100%); // 悬停渐变
 					transform: translateY(-2px);
+					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); // 悬停阴影
 				}
 				
 				.machine-label {
-					color: white;
+					color: rgba(255, 255, 255, 0.9); // 稍微降低透明度
 					font-size: 11px;
 					margin-bottom: 4px;
 					font-weight: 500;
+					text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); // 添加文字阴影
 				}
 				
 				.machine-status-text {
 					font-size: 10px;
 					font-weight: bold;
 					text-align: center;
+					text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); // 添加文字阴影
 				}
 			}
 		}
@@ -1849,20 +1950,26 @@
 			
 			.tab-header {
 				padding: 8px 16px;
-				background: rgba(255, 255, 255, 0.1);
+				background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.12) 100%); // 渐变背景
 				border-radius: 20px;
-				color: rgba(255, 255, 255, 0.7);
+				color: rgba(255, 255, 255, 0.8); // 提高可见度
 				font-size: 12px;
 				cursor: pointer;
 				transition: all 0.3s ease;
+				backdrop-filter: blur(5px); // 添加背景模糊
+				border: 1px solid rgba(255, 255, 255, 0.08); // 添加细微边框
 				
 				&.active {
-					background: rgba(30, 144, 255, 0.3);
-					color: white;
+					background: linear-gradient(135deg, rgba(30, 144, 255, 0.25) 0%, rgba(79, 195, 247, 0.35) 100%); // 活跃状态渐变
+					color: rgba(255, 255, 255, 0.95);
+					box-shadow: 0 2px 8px rgba(30, 144, 255, 0.3); // 添加发光效果
+					border: 1px solid rgba(79, 195, 247, 0.3);
 				}
 				
 				&:hover {
-					background: rgba(255, 255, 255, 0.15);
+					background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.18) 100%); // 悬停渐变
+					transform: translateY(-1px); // 轻微上浮效果
+					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 				}
 			}
 		}
@@ -1881,7 +1988,7 @@
 			
 			.header-cell {
 				flex: 1;
-				font-size: 12px;
+				font-size: 17px;
 				color: white;
 				font-weight: bold;
 				text-align: center;
@@ -1896,13 +2003,37 @@
 				
 				.table-cell {
 					flex: 1;
-					font-size: 11px;
+					font-size: 15px;
 					color: rgba(255, 255, 255, 0.8);
 					display: flex;
 					align-items: center;
 					justify-content: center;
+					gap: 5px; // 为图标和文字添加间距
 				}
 			}
+		}
+		
+		// 告警级别样式
+		.alert-emergency {
+			color: #FF4444 !important;
+			font-weight: bold;
+			text-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+		}
+		
+		.alert-warning {
+			color: #FFA726 !important;
+			font-weight: bold;
+			text-shadow: 0 0 8px rgba(255, 167, 38, 0.6);
+		}
+		
+		.alert-normal {
+			color: #66BB6A !important;
+			font-weight: normal;
+		}
+		
+		.alert-info {
+			color: #42A5F5 !important;
+			font-weight: normal;
 		}
 	}
 
@@ -1924,15 +2055,16 @@
 				text-align: center;
 				
 				.total-value {
-					font-size: 24px; // 从20px调整到24px
+					font-size: 15px; // 从20px调整到24px
 					font-weight: bold;
-					color: #4FC3F7;
+					color: rgba(79, 195, 247, 0.9); // 增加透明度统一色调
+					text-shadow: 0 2px 8px rgba(79, 195, 247, 0.4); // 添加光晕效果
 					display: block;
 				}
 				
 				.total-label {
 					font-size: 12px; // 从10px调整到12px
-					color: rgba(255, 255, 255, 0.8);
+					color: rgba(255, 255, 255, 0.7); // 稍微降低透明度
 				}
 			}
 		}
@@ -1959,9 +2091,10 @@
 				}
 				
 				.legend-value {
-					color: white;
+					color: rgba(255, 255, 255, 0.95); // 稍微降低透明度
 					font-weight: bold;
 					font-size: 14px; // 从10px调整到14px
+					text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); // 添加文字阴影
 				}
 			}
 		}
@@ -2034,9 +2167,10 @@
 		
 		.card-title {
 			font-family: 'myfont', sans-serif;
-			color: white;
+			color: rgba(255, 255, 255, 0.95); // 增加透明度
 			font-size: 18px;
 			font-weight: bold;
+			text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); // 添加文字阴影
 		}
 	}
 
@@ -2150,8 +2284,32 @@
 					display: flex;
 					align-items: center;
 					justify-content: center;
+					gap: 5px; // 为图标和文字添加间距
 				}
 			}
+		}
+		
+		// 告警级别样式（与紧凑表格保持一致）
+		.alert-emergency {
+			color: #FF4444 !important;
+			font-weight: bold;
+			text-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+		}
+		
+		.alert-warning {
+			color: #FFA726 !important;
+			font-weight: bold;
+			text-shadow: 0 0 8px rgba(255, 167, 38, 0.6);
+		}
+		
+		.alert-normal {
+			color: #66BB6A !important;
+			font-weight: normal;
+		}
+		
+		.alert-info {
+			color: #42A5F5 !important;
+			font-weight: normal;
 		}
 	}
 
@@ -2377,7 +2535,7 @@
 					flex: 1;
 					color: #1e90ff;
 					font-weight: bold;
-					font-size: 12px;
+					font-size: 15px;
 					text-align: center;
 				}
 			}
@@ -2394,7 +2552,7 @@
 					.table-cell {
 						flex: 1;
 						color: rgba(255, 255, 255, 0.8);
-						font-size: 12px;
+						font-size: 15px;
 						text-align: center;
 					}
 				}
@@ -2409,7 +2567,7 @@
 		
 		.yearly-legend {
 			position: absolute;
-			top: 20px;
+			top: 0px;
 			right: 40px;
 			display: flex;
 			gap: 20px;

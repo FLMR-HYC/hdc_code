@@ -235,7 +235,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 49%, rgba(30, 144, 255, 0.1) 50%, transparent 51%);
+    background: linear-gradient(45deg, transparent 49%, rgba(30, 143, 255, 0.1) 50%, transparent 51%);
     opacity: 0.3;
     animation: shimmer 3s ease-in-out infinite;
   }
